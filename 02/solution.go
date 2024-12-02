@@ -34,7 +34,7 @@ func solution1(acc *SolutionAccumulator) {
 	var safeCount = 0
 
 	// Process each set of data
-	for _, data := range acc.rawData {
+	for ri, data := range acc.rawData {
 		var prevLevel = 0
 		//		var levelDirection = 0
 		//		var safe = true
@@ -62,6 +62,7 @@ func solution1(acc *SolutionAccumulator) {
 		}
 		if checkSafety(positives, negatives, outOfRange, 0) {
 			safeCount++
+			reportSafe(ri, data)
 		}
 	}
 	fmt.Println("Solution 1: " + strconv.Itoa(safeCount))
@@ -71,6 +72,13 @@ func solution1(acc *SolutionAccumulator) {
 func solution2(acc *SolutionAccumulator) {
 }
 
+func reportSafe(ri int, data []int) {
+	fmt.Printf("Row %d: ", ri)
+	for _, val := range data {
+		fmt.Printf("%d, ", val)
+	}
+	fmt.Println()
+}
 func checkSafety(positives int, negatives int, outOfRange int, allowedFailures int) bool {
 	var failureCount = 0
 
