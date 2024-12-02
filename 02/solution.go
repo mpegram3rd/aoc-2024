@@ -83,10 +83,12 @@ func checkSafety(positives int, negatives int, outOfRange int, allowedFailures i
 	var failureCount = 0
 
 	if positives > negatives {
-		failureCount += negatives
+		failureCount += negatives // the lesser value indicates the number of directional switches
 	} else {
 		if positives < negatives {
 			failureCount += positives
+		} else {
+			failureCount += positives // if they're equal then just pick one
 		}
 	}
 
