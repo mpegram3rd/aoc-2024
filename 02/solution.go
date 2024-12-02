@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	//	"math"
 	"strconv"
 	"strings"
 )
@@ -35,24 +36,31 @@ func solution1(acc *SolutionAccumulator) {
 	// Process each set of data
 	for _, data := range acc.rawData {
 		var prevLevel = 0
-		var levelDirection = 0
-		var safe = true
+		//		var levelDirection = 0
+		//		var safe = true
 
 		// Process each data item
-	levels: // label to break out of loop early
+		var positives = 0
+		var negatives = 0
+		var outOfRange = 0
 		for _, level := range data {
 			// handle first value
 			if prevLevel == 0 {
 				prevLevel = level
 			} else {
-				safe, levelDirection = checkSafety(level, prevLevel, levelDirection)
+				if prevLevel < level {
+					positives++
+				} else if level < prevLevel {
+					negatives++
+				}
+				var diff = absInt(level - prevLevel)
+				if diff < 1 || diff > 3 {
+					outOfRange++
+				}
 				prevLevel = level
 			}
-			if !safe {
-				break levels
-			}
 		}
-		if safe {
+		if checkSafety(positives, negatives, outOfRange, 0) {
 			safeCount++
 		}
 	}
@@ -63,30 +71,58 @@ func solution1(acc *SolutionAccumulator) {
 func solution2(acc *SolutionAccumulator) {
 }
 
+func checkSafety(positives int, negatives int, outOfRange int, allowedFailures int) bool {
+	var failureCount = 0
+
+	if positives > negatives {
+		failureCount += negatives
+	} else {
+		if positives < negatives {
+			failureCount += positives
+		}
+	}
+
+	failureCount += outOfRange
+	return failureCount <= allowedFailures
+}
+
 // Checks the safety of the level data by 2 criteria
 // 1. Are the levels steadily increasing or decreasing (can't change direction)
 // 2. Is the change in level from the prior value between 1 and 3
-func checkSafety(level int, prevLevel int, levelDirection int) (bool, int) {
-	// If we haven't figured out the direction of the level, do that now.
-	if levelDirection == 0 && prevLevel < level {
-		levelDirection = 1
-	} else if levelDirection == 0 && prevLevel > level {
-		levelDirection = -1
-	}
+//func checkSafety(level int, prevLevel int, levelDirection int) (bool, int) {
+//	// If we haven't figured out the direction of the level, do that now.
+//	if levelDirection == 0 && prevLevel < level {
+//		levelDirection = 1
+//	} else if levelDirection == 0 && prevLevel > level {
+//		levelDirection = -1
+//	}
+//
+//	var levelDiff = level - prevLevel
+//	var levelRange = absInt(levelDiff)
+//
+//	// Check that the difference is within range
+//	if levelRange < 1 || levelRange > 3 {
+//		return false, levelDirection
+//	}
+//
+//	// Confirm the direction is consistent
+//	return (levelDirection > 0 && levelDiff >= levelDirection) || (levelDirection < 0 && levelDiff <= levelDirection),
+//		levelDirection
+//}
 
-	var levelDiff = level - prevLevel
-	var levelRange = absInt(levelDiff)
+// Determines which direction the levels are trending: -1 = down, 0 = has not been determined, 1 = up
+//func determineDirection(prevLevel int, level int) {
+//	var levelDirection = 0
+//	// If we haven't figured out the direction of the level, do that now.
+//	if prevLevel < level {
+//		levelDirection = 1
+//	} else if prevLevel > level {
+//		levelDirection = -1
+//	}
+//
+//}
 
-	// Check that the difference is within range
-	if levelRange < 1 || levelRange > 3 {
-		return false, levelDirection
-	}
-
-	// Confirm the direction is consistent
-	return (levelDirection > 0 && levelDiff >= levelDirection) || (levelDirection < 0 && levelDiff <= levelDirection),
-		levelDirection
-}
-
+// An integer based Absolute Value function
 func absInt(x int) int {
 	if x < 0 {
 		return -x
