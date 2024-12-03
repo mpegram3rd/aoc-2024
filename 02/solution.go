@@ -25,53 +25,45 @@ func (acc *SolutionAccumulator) ProcessLine(line string) {
 
 // Execute the strategies for each solution
 func (acc *SolutionAccumulator) Execute() {
-	solution1(acc)
-	solution2(acc)
+	fmt.Println("Starting processing!")
+	//	checkLevels(acc, 0) // Solution 1
+	checkLevels(acc, 1) // Solution 2
 }
 
 // Part 1 solution
-func solution1(acc *SolutionAccumulator) {
+func checkLevels(acc *SolutionAccumulator, maxViolations int) {
 	var safeCount = 0
 
 	// Process each set of data
 	for ri, data := range acc.rawData {
 		var prevLevel = 0
-		//		var levelDirection = 0
-		//		var safe = true
-
-		// Process each data item
-		var positives = 0
-		var negatives = 0
-		var outOfRange = 0
+		var violationCount = 0
+		var direction = findGeneralDirection(data)
 		for _, level := range data {
-			// handle first value
-			if prevLevel == 0 {
-				prevLevel = level
-			} else {
-				if prevLevel < level {
-					positives++
-				} else if level < prevLevel {
-					negatives++
+			if prevLevel != 0 {
+				var diff = level - prevLevel
+				var absDiff = absInt(diff)
+				if direction == 1 && diff < 1 { // if ascending and we hit a non-ascending value
+					violationCount++
+				} else if direction == -1 && diff > -1 { // if descending and we hit an ascending value
+					violationCount++
+				} else if absDiff < 1 || absDiff > 3 {
+					violationCount++
 				}
-				var diff = absInt(level - prevLevel)
-				if diff < 1 || diff > 3 {
-					outOfRange++
-				}
-				prevLevel = level
 			}
+			prevLevel = level
+
 		}
-		if checkSafety(positives, negatives, outOfRange, 0) {
+
+		if violationCount <= maxViolations {
 			safeCount++
 			reportSafe(ri, data)
 		}
 	}
-	fmt.Println("Solution 1: " + strconv.Itoa(safeCount))
+	fmt.Println("Solution: " + strconv.Itoa(safeCount))
 }
 
 // Part 2 solution
-func solution2(acc *SolutionAccumulator) {
-}
-
 func reportSafe(ri int, data []int) {
 	fmt.Printf("Row %d: ", ri)
 	for _, val := range data {
@@ -79,58 +71,41 @@ func reportSafe(ri int, data []int) {
 	}
 	fmt.Println()
 }
-func checkSafety(positives int, negatives int, outOfRange int, allowedFailures int) bool {
-	var failureCount = 0
 
-	if positives > negatives {
-		failureCount += negatives // the lesser value indicates the number of directional switches
-	} else {
-		if positives < negatives {
-			failureCount += positives
-		} else {
-			failureCount += positives // if they're equal then just pick one
+// Figure out which direction in general the list is headed.
+func findGeneralDirection(data []int) int {
+	var positives = 0
+	var negatives = 0
+	var prevVal = 0
+
+	for _, val := range data {
+		if prevVal != 0 {
+			if val > prevVal {
+				positives++
+			} else if val < prevVal {
+				negatives++
+			}
 		}
+		prevVal = val
 	}
 
-	failureCount += outOfRange
-	return failureCount <= allowedFailures
+	if positives > negatives {
+		return 1
+	}
+	return -1
 }
 
-// Checks the safety of the level data by 2 criteria
-// 1. Are the levels steadily increasing or decreasing (can't change direction)
-// 2. Is the change in level from the prior value between 1 and 3
-//func checkSafety(level int, prevLevel int, levelDirection int) (bool, int) {
-//	// If we haven't figured out the direction of the level, do that now.
-//	if levelDirection == 0 && prevLevel < level {
-//		levelDirection = 1
-//	} else if levelDirection == 0 && prevLevel > level {
-//		levelDirection = -1
-//	}
-//
-//	var levelDiff = level - prevLevel
-//	var levelRange = absInt(levelDiff)
-//
-//	// Check that the difference is within range
-//	if levelRange < 1 || levelRange > 3 {
-//		return false, levelDirection
-//	}
-//
-//	// Confirm the direction is consistent
-//	return (levelDirection > 0 && levelDiff >= levelDirection) || (levelDirection < 0 && levelDiff <= levelDirection),
-//		levelDirection
-//}
-
 // Determines which direction the levels are trending: -1 = down, 0 = has not been determined, 1 = up
-//func determineDirection(prevLevel int, level int) {
-//	var levelDirection = 0
-//	// If we haven't figured out the direction of the level, do that now.
-//	if prevLevel < level {
-//		levelDirection = 1
-//	} else if prevLevel > level {
-//		levelDirection = -1
-//	}
-//
-//}
+func determineDirection(prevLevel int, level int) int {
+	var levelDirection = 0
+	// If we haven't figured out the direction of the level, do that now.
+	if prevLevel < level {
+		levelDirection = 1
+	} else if prevLevel > level {
+		levelDirection = -1
+	}
+	return levelDirection
+}
 
 // An integer based Absolute Value function
 func absInt(x int) int {
