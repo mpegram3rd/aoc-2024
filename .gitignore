@@ -459,5 +459,4 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/macos,jetbrains,go,python,java,dotnetcore,kotlin,node
 
 # Don't check-in AoC data files
-input*.txt
-test-*.txt
+*.txt
