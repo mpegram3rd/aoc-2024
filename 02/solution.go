@@ -26,7 +26,7 @@ func (acc *SolutionAccumulator) ProcessLine(line string) {
 // Execute the strategies for each solution
 func (acc *SolutionAccumulator) Execute() {
 	fmt.Println("Starting processing!")
-	//	checkLevels(acc, 0) // Solution 1
+	checkLevels(acc, 0) // Solution 1
 	checkLevels(acc, 1) // Solution 2
 }
 
