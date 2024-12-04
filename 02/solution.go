@@ -26,7 +26,7 @@ func (acc *SolutionAccumulator) ProcessLine(line string) {
 // Execute the strategies for each solution
 func (acc *SolutionAccumulator) Execute() {
 	fmt.Println("Starting processing!")
-	checkLevels(acc, 0) // Solution 1
+	// checkLevels(acc, 0) // Solution 1
 	checkLevels(acc, 1) // Solution 2
 }
 
@@ -44,11 +44,16 @@ func checkLevels(acc *SolutionAccumulator, maxViolations int) {
 				var diff = level - prevLevel
 				var absDiff = absInt(diff)
 				if direction == 1 && diff < 1 { // if ascending and we hit a non-ascending value
+					fmt.Println("Failure: Ascending with change of direction")
 					violationCount++
+					level = prevLevel
 				} else if direction == -1 && diff > -1 { // if descending and we hit an ascending value
+					fmt.Println("Failure: Descending with change of direction")
 					violationCount++
 				} else if absDiff < 1 || absDiff > 3 {
+					fmt.Println("Failure: Difference too large")
 					violationCount++
+					//level = prevLevel
 				}
 			}
 			prevLevel = level
